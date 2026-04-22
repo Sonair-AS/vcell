@@ -30,6 +30,10 @@ impl<T> VolatileCell<T> {
     pub fn get(&self) -> T
         where T: Copy
     {
+        // SAFETY: UnsafeCell::get returns a valid, aligned pointer to the inner value.
+        // The volatile read ensures the compiler does not optimize away or reorder
+        // this access, which is required for memory-mapped I/O registers.
+        // The T: Copy bound guarantees no drop/move concerns.
         unsafe { ptr::read_volatile(self.value.get()) }
     }
 
@@ -38,6 +42,10 @@ impl<T> VolatileCell<T> {
     pub fn set(&self, value: T)
         where T: Copy
     {
+        // SAFETY: UnsafeCell::get returns a valid, aligned pointer to the inner value.
+        // The volatile write ensures the compiler does not optimize away or reorder
+        // this access, which is required for memory-mapped I/O registers.
+        // The T: Copy bound guarantees no drop/move concerns.
         unsafe { ptr::write_volatile(self.value.get(), value) }
     }
 
